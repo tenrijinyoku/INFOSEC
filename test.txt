@@ -1,0 +1,9 @@
+你说的对，但喝美式不加糖真的很酷！
+
+
+
+git add .
+git commit -m "这是一个实例"
+git push -u HIT_CA master
+
+git remote add link https:xxxxxxxxxxxxxxxxxxx
