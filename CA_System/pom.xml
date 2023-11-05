@@ -18,6 +18,20 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+		<!-- jquery-->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>3.5.1</version>
+		</dependency>
+
+		<!--html处理-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
+
 		<!--Json处理-->
 		<dependency>
 			<groupId>org.json</groupId>

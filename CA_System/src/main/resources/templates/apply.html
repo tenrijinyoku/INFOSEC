@@ -1,16 +1,132 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>证书申请</title>
+
 </head>
 <body>
-
-<form th:action="@{/ca/apply}" method="post">
-    <p>用户名：<input name="username" type="text" placeholder="userName"></p>
-    <p>密  码：<input name="password" type="password" placeholder="Password"></p>
-    <button type="submit">提交</button>
-</form>
-
+<div style="text-align: center;">
+    <h2>证书申请</h2>
+    <form>
+        <input type="button" id="flush0" value="一键下载非token文件">
+        <a href="#" class="a_post">一键下载证书</a>
+        <input type="button" id="flush1" value="一键查询">
+        <input type="button" id="flush2" value="一键申请">
+    </form>
+</div>
 </body>
+
+
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    $(function () {
+        var btn0 = $("#flush0");
+        btn0.click(function () {
+            $.ajax({
+                url: '/ca/downloadtest',
+                type:'get',
+                beforeSend: function(xhr) {
+                    //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
+                    // 利用请求头携带token数据
+                    xhr.setRequestHeader('Authorization',localStorage.getItem("Authorization"))
+                },
+                success:function (data) {
+                    window.location.href = "/ca/downloadtest"
+                    console.log(data);
+                    var str = JSON.stringify(data)
+                    alert(str);
+
+                }
+            })
+        })
+
+        var btn1 = $("#flush1");
+        btn1.click(function () {
+            $.ajax({
+                url: '/ca/query',
+                type:'get',
+                beforeSend: function(xhr) {
+                    //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
+                    // 利用请求头携带token数据
+                    xhr.setRequestHeader('Authorization',localStorage.getItem("Authorization"))
+                },
+                success:function (data) {
+                    console.log(data);
+                    var str = JSON.stringify(data)
+                    alert(str);
+
+                }
+            })
+        })
+        var btn2 = $("#flush2");
+        btn2.click(function () {
+            $.ajax({
+                url: '/ca/apply',
+                type:'get',
+                beforeSend: function(xhr) {
+                    //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
+                    // 利用请求头携带token数据
+                    xhr.setRequestHeader('Authorization',localStorage.getItem("Authorization"))
+                },
+                success:function (data) {
+                    console.log(data);
+                    var str = JSON.stringify(data)
+                    alert(str);
+
+                }
+            })
+        })
+    })
+    $(".a_post").on("click",function(event){
+        event.preventDefault();//使a自带的方法失效，即无法调整到href中的URL
+        var url='/ca/download';   //请求的URl
+        var xhr = new XMLHttpRequest();		//定义http请求对象
+        xhr.open("GET", url, true);
+        xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        xhr.setRequestHeader('Authorization',localStorage.getItem("Authorization"))
+        xhr.send();
+        xhr.responseType = "blob";  // 返回类型blob
+        xhr.onload = function() {   // 定义请求完成的处理函数，请求前也可以增加加载框/禁用下载按钮逻辑
+            if (this.status===200) {
+                var blob = this.response;
+                //console.log(this.response.data)
+                //alert(this.readyState);
+                //alert(xhr.getAllResponseHeaders());
+                console.log(xhr.getResponseHeader("content-disposition"))
+                if(xhr.getResponseHeader("content-disposition")==null){
+                    alert("未申请证书！！！")
+
+                }
+                let temp = xhr.getResponseHeader("content-disposition").split(";")[1].split("filename=")[1];
+                var fileName = "certification";
+                //var hh = xhh.getResponseHeader("fileName");
+
+                //var fileName = this.response.headers["content-disposition"].split(";")[1].split("filename=")[1];
+                //console.log("fileName="+fileName)
+                //console.log(xhr.getResponseHeader("content-disposition"))
+                var reader = new FileReader();
+                reader.readAsDataURL(blob);  // 转换为base64，可以直接放入a标签href
+                reader.onload=function (e) {
+                    console.log(e);			//查看有没有接收到数据流
+                    // 转换完成，创建一个a标签用于下载
+                    var a = document.createElement('a');
+                    a.download=fileName+".txt";			//自定义下载文件名称
+                    a.href = e.target.result;
+                    $("body").append(a);    // 修复firefox中无法触发click
+                    a.click();
+                    //$(a).remove();
+                }
+            }
+            else{
+                alert("出现了未知的错误!");
+            }
+        }
+    });
+
+
+
+</script>
 </html>
+

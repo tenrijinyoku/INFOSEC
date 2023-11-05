@@ -3,6 +3,7 @@ package com.ghostflower.CA_System.controller;
 import com.ghostflower.CA_System.pojo.Ca;
 import com.ghostflower.CA_System.pojo.Result;
 import com.ghostflower.CA_System.service.CaService;
+import com.ghostflower.CA_System.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
@@ -26,11 +27,11 @@ public class CaController {
      * @param request
      * @return
      */
+    //返回证书页面
     @GetMapping("/apply")
     public Result Apply(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         Ca ca = cs.FindCa(token);
-
         if(ca==null){
             //说明没有该证书记录，可以注册
             cs.Apply(token);
