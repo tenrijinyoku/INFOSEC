@@ -5,8 +5,13 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,12 +36,29 @@ public class JWTTest {
     public void Parse(){
 
 
+            File file = new File("test.txt");
+            byte[] bytes = new byte[1024];
+
+            try{
+                FileInputStream fis = new FileInputStream(file);
+                while ((fis.read(bytes)) != -1) {
+                    System.out.println(fis.read(bytes));
+                }
+
+
+            }catch (Exception e){
+
+
+            }
+
+
+
 
         //模拟用户Token
-        String token = JwtGen();
-        JWTVerifier jwtv = JWT.require(Algorithm.HMAC256("This is a test!!")).build();//生成请求处理器（输入密钥）
-        DecodedJWT Djwt = jwtv.verify(token);//解析token，生成解析后的对象，成功则说明正确
-        Map<String, Claim> claims = Djwt.getClaims();
-        System.out.println(claims.get("user"));
+//        String token = JwtGen();
+//        JWTVerifier jwtv = JWT.require(Algorithm.HMAC256("This is a test!!")).build();//生成请求处理器（输入密钥）
+//        DecodedJWT Djwt = jwtv.verify(token);//解析token，生成解析后的对象，成功则说明正确
+//        Map<String, Claim> claims = Djwt.getClaims();
+//        System.out.println(claims.get("user"));
     }
 }

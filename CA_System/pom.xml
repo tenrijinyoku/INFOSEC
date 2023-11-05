@@ -18,6 +18,13 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+		<!--Json处理-->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20140107</version>
+		</dependency>
+
 		<!--Pair类型-->
 		<dependency>
 			<groupId>org.javatuples</groupId>

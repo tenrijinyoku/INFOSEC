@@ -12,4 +12,6 @@ public class Ca {
     public long startDate;//生效时间
     public long endDate;//终止时间
     public Pair<String,String> keyPairs;//RSA密钥对
+    public String publicKey;
+    public String privateKey;
 }
