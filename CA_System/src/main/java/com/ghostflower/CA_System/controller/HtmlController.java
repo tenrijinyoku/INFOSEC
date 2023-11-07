@@ -19,6 +19,11 @@ public class HtmlController {
         return "apply";
     }
 
+    @GetMapping("/test")
+    public String TestHtml(){
+        return "test";
+    }
+
 
 }
 

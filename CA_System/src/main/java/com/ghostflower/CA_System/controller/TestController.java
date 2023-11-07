@@ -28,10 +28,19 @@ public class TestController {
             return Result.Success(plaintext);
         }
 
+    }
+    @GetMapping("/de")
+    public Result TestDE2(HttpServletRequest request) {
+        DigitalEnvelope de = cs.GenerateDigitalEnvelope("this is a test plainText!!!", "8IF4T29607an8Dmn");
+        if (de == null) {
 
 
+            return Result.Error("收信人尚未申请证书！！！");
 
-
+        } else {
+            String plaintext = cs.DecryptDigitalEnvelope(de);
+            return Result.Success(plaintext);
+        }
     }
 }
 

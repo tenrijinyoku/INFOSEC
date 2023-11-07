@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录</title>
+
+</head>
+<body>
+<div style="text-align: center;">
+    <h2>用户登录/注册</h2>
+    <form id="login_value">
+        <div>
+            <label>用户名：</label>
+            <input id="username" type="text" name="username" placeholder="请输入用户名" value="admin">
+        </div>
+        <div>
+            <label>密  码：</label>
+            <input id="password" type="password" name="password" placeholder="请输入密码" value="123456">
+        </div>
+        <div>
+            <input type="button" value="aes加密" id="flush0">
+            <input type="button" value="aes解密" id="flush1">
+            <input type="button" value="rsa加密" id="flush2">
+            <input type="button" value="rsa解密" id="flush3">
+            <input type="button" value="本地私钥读取并rsa解密" id="flush4">
+
+        </div>
+
+
+    </form>
+</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.bootcss.com/jsencrypt/3.0.0-beta.1/jsencrypt.js"></script>
+
+<script>
+
+    $(function () {
+        var encrypted
+        var encrypted_RSA
+        var btn0 = $("#flush0");
+        btn0.click(function () {
+
+            const message = CryptoJS.enc.Utf8.parse($("#username").val())
+            const secretPassphrase1 = CryptoJS.enc.Utf8.parse('0123456789asdfgh')
+            const iv1 = CryptoJS.enc.Utf8.parse('0123456789asdfgh')
+
+            encrypted = CryptoJS.AES.encrypt(message, secretPassphrase1, {
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7,
+                iv:iv1
+            }).toString()
+            alert(encrypted)
+        })
+
+        var btn1 = $("#flush1");
+        btn1.click(function () {
+            const secretPassphrase2 = CryptoJS.enc.Utf8.parse('0123456789asdfgh')
+            const iv2 = CryptoJS.enc.Utf8.parse('0123456789asdfgh')
+            const decrypted = CryptoJS.AES.decrypt(
+                encrypted,
+                secretPassphrase2,
+                {
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7,
+                    iv: iv2
+                }
+            ).toString(CryptoJS.enc.Utf8)
+            alert(decrypted)
+
+
+        })
+        var btn2 = $("#flush2");
+        btn2.click(function () {
+            var public_Key
+            $.ajax({
+                url: '/ca/query',
+                type:'get',
+                async: false,
+                beforeSend: function(xhr) {
+                    //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
+                    // 利用请求头携带token数据
+                    xhr.setRequestHeader('Authorization',"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGFpbXMiOnsidWlkIjoiRU1UNHU3MWZuVTE0eUI1TiIsInVzZXJuYW1lIjoiYWRtaW4ifSwiZXhwIjoxNjk5NDE4OTI5fQ.1jYyEff7l1waR1ap8oCkhPkeqRrDbMhOmL7FVkWhrGM")
+                },
+                success:function (data) {
+                    with(data){
+                        with(data){
+                            public_Key = publicKey
+                        }
+                    }
+                }
+            })
+            //使用公钥加密
+            var encrypt = new JSEncrypt();
+            //encrypt.setPrivateKey('-----BEGIN RSA PRIVATE KEY-----'+PRIVATE_KEY+'-----END RSA PRIVATE KEY-----');
+            encrypt.setPublicKey('-----BEGIN PUBLIC KEY-----' + public_Key + '-----END PUBLIC KEY-----');
+            encrypted_RSA = encrypt.encrypt('ceshi01');
+            alert('加密后数据:'+encrypted_RSA);
+        })
+
+        var btn3 = $("#flush3");
+        btn3.click(function () {
+            var private_Key
+            $.ajax({
+                url: '/ca/query',
+                type:'get',
+                async: false,
+                beforeSend: function(xhr) {
+                    //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
+                    // 利用请求头携带token数据
+                    xhr.setRequestHeader('Authorization',"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGFpbXMiOnsidWlkIjoiRU1UNHU3MWZuVTE0eUI1TiIsInVzZXJuYW1lIjoiYWRtaW4ifSwiZXhwIjoxNjk5NDE4OTI5fQ.1jYyEff7l1waR1ap8oCkhPkeqRrDbMhOmL7FVkWhrGM")
+                },
+                success:function (data) {
+                    with(data){
+                        with(data){
+                            private_Key = privateKey
+                            localStorage.setItem("privateKey",private_Key)
+                        }
+                    }
+                }
+            })
+            //使用私钥解密
+            var decrypt = new JSEncrypt();
+            //decrypt.setPublicKey('-----BEGIN PUBLIC KEY-----' + PUBLIC_KEY + '-----END PUBLIC KEY-----');
+            decrypt.setPrivateKey('-----BEGIN RSA PRIVATE KEY-----'+private_Key+'-----END RSA PRIVATE KEY-----');
+            var uncrypted = decrypt.decrypt(encrypted_RSA);
+            alert('解密后数据:'+uncrypted);
+
+
+        })
+
+        var btn4 = $("#flush4");
+        btn4.click(function () {
+            var private_Key
+
+            private_Key = localStorage.getItem("privateKey");
+
+            //使用私钥解密
+            var decrypt = new JSEncrypt();
+            //decrypt.setPublicKey('-----BEGIN PUBLIC KEY-----' + PUBLIC_KEY + '-----END PUBLIC KEY-----');
+            decrypt.setPrivateKey('-----BEGIN RSA PRIVATE KEY-----'+private_Key+'-----END RSA PRIVATE KEY-----');
+            var uncrypted = decrypt.decrypt(encrypted_RSA);
+            alert('解密后数据:'+uncrypted);
+
+
+        })
+
+
+
+
+    })
+
+
+
+
+</script>
+</html>
