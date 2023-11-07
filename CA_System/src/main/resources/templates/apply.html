@@ -13,6 +13,7 @@
         <a href="#" class="a_post">一键下载证书</a>
         <input type="button" id="flush1" value="一键查询">
         <input type="button" id="flush2" value="一键申请">
+        <input type="button" id="flush3" value="一键注销证书">
     </form>
 </div>
 </body>
@@ -64,6 +65,24 @@
         btn2.click(function () {
             $.ajax({
                 url: '/ca/apply',
+                type:'get',
+                beforeSend: function(xhr) {
+                    //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
+                    // 利用请求头携带token数据
+                    xhr.setRequestHeader('Authorization',localStorage.getItem("Authorization"))
+                },
+                success:function (data) {
+                    console.log(data);
+                    var str = JSON.stringify(data)
+                    alert(str);
+
+                }
+            })
+        })
+        var btn3 = $("#flush3");
+        btn3.click(function () {
+            $.ajax({
+                url: '/ca/delete',
                 type:'get',
                 beforeSend: function(xhr) {
                     //xhr是原生ajax中网络请求对象，jQuery中已经封装好的

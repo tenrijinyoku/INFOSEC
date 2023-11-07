@@ -1,6 +1,7 @@
 package com.ghostflower.CA_System.mapper;
 
 import com.ghostflower.CA_System.pojo.Ca;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -17,6 +18,7 @@ public interface CaMapper {
     @Insert("insert into Ca(uid,serial,alg,publickey,privatekey,startdate,enddate,issuer,version)" +
             " values(#{uid},#{serial},#{alg},#{publicKey},#{privateKey},#{startDate},#{endDate},#{issuer},#{version})")
     void Add(String uid,String serial, String alg,String publicKey,String privateKey,long startDate,long endDate,String issuer,String version );
-
+    @Delete("delete from Ca where uid=#{uid}")
+    void Delete(String uid);
 
 }

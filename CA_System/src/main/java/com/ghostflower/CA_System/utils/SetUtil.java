@@ -68,7 +68,7 @@ class DoubleSignature {
 @return
  */
 class DigitalEnvelope {
-    public String plaintext;
+    public String plainText;
     public String ciphertext;
     public String temproryKey;
     public String ciphertemproryKey;
