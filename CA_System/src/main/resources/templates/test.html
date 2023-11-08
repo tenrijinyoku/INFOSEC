@@ -15,7 +15,7 @@
         </div>
         <div>
             <label>密  码：</label>
-            <input id="password" type="password" name="password" placeholder="请输入密码" value="123456">
+            <input id="password" type="password" name="password" placeholder="请输入密码" value="0123456789asdfgh">
         </div>
         <div>
             <input type="button" value="aes加密" id="flush0">
@@ -23,6 +23,8 @@
             <input type="button" value="rsa加密" id="flush2">
             <input type="button" value="rsa解密" id="flush3">
             <input type="button" value="本地私钥读取并rsa解密" id="flush4">
+            <input type="button" value="数字信封加密" id="flush5">
+            <input type="button" value="数字信封解密" id="flush6">
 
         </div>
 
@@ -143,6 +145,77 @@
             decrypt.setPrivateKey('-----BEGIN RSA PRIVATE KEY-----'+private_Key+'-----END RSA PRIVATE KEY-----');
             var uncrypted = decrypt.decrypt(encrypted_RSA);
             alert('解密后数据:'+uncrypted);
+
+
+        })
+
+
+
+
+
+
+        var encodedKey
+        var encodedText
+        var btn5 = $("#flush5");
+        btn5.click(function () {
+            var public_Key
+            $.ajax({
+                url: '/ca/query',
+                type:'get',
+                async: false,
+                beforeSend: function(xhr) {
+                    //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
+                    // 利用请求头携带token数据
+                    xhr.setRequestHeader('Authorization',"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGFpbXMiOnsidWlkIjoiRU1UNHU3MWZuVTE0eUI1TiIsInVzZXJuYW1lIjoiYWRtaW4ifSwiZXhwIjoxNjk5NDE4OTI5fQ.1jYyEff7l1waR1ap8oCkhPkeqRrDbMhOmL7FVkWhrGM")
+                },
+                success:function (data) {
+                    with(data){
+                        with(data){
+                            public_Key = publicKey
+                        }
+                    }
+                }
+            })
+            const message = CryptoJS.enc.Utf8.parse($("#username").val())
+            const secretPassphrase1 = CryptoJS.enc.Utf8.parse($("#password").val())
+            const iv1 = CryptoJS.enc.Utf8.parse($("#password").val())
+
+            encodedText = CryptoJS.AES.encrypt(message, secretPassphrase1, {
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7,
+                iv:iv1
+            }).toString()
+
+            //使用公钥加密
+            var encrypt = new JSEncrypt();
+            //encrypt.setPrivateKey('-----BEGIN RSA PRIVATE KEY-----'+PRIVATE_KEY+'-----END RSA PRIVATE KEY-----');
+            encrypt.setPublicKey('-----BEGIN PUBLIC KEY-----' + public_Key + '-----END PUBLIC KEY-----');
+            encodedKey = encrypt.encrypt($("#password").val());
+            alert('加密后密钥:'+encodedKey+"加密后明文："+encodedText);
+        })
+        var btn6 = $("#flush6");
+        btn6.click(function () {
+            var private_Key
+
+            private_Key = localStorage.getItem("privateKey");
+
+            //使用私钥解密
+            var decrypt = new JSEncrypt();
+            //decrypt.setPublicKey('-----BEGIN PUBLIC KEY-----' + PUBLIC_KEY + '-----END PUBLIC KEY-----');
+            decrypt.setPrivateKey('-----BEGIN RSA PRIVATE KEY-----'+private_Key+'-----END RSA PRIVATE KEY-----');
+            var decodeKey = decrypt.decrypt(encodedKey);
+
+            const secretPassphrase2 = CryptoJS.enc.Utf8.parse(decodeKey)
+            const iv2 = CryptoJS.enc.Utf8.parse(decodeKey)
+            const decodedText = CryptoJS.AES.decrypt(
+                encodedText,
+                secretPassphrase2,
+                {
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7,
+                    iv: iv2
+                }).toString(CryptoJS.enc.Utf8)
+            alert("解密后密钥:"+decodeKey+'解密后明文:'+decodedText);
 
 
         })
