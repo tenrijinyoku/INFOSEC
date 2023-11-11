@@ -18,6 +18,12 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+		<!--bouncycastle-->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.59</version>
+		</dependency>
 		<!-- jquery-->
 		<dependency>
 			<groupId>org.webjars</groupId>

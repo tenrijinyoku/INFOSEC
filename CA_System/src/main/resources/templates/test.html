@@ -23,8 +23,11 @@
             <input type="button" value="rsa加密" id="flush2">
             <input type="button" value="rsa解密" id="flush3">
             <input type="button" value="本地私钥读取并rsa解密" id="flush4">
-            <input type="button" value="数字信封加密" id="flush5">
-            <input type="button" value="数字信封解密" id="flush6">
+            <input type="button" value="本地数字信封加密" id="flush5">
+            <input type="button" value="本地数字信封解密" id="flush6">
+
+            <input type="button" value="双端数字信封加密" id="flush7">
+            <input type="button" value="双端数字信封解密" id="flush8">
 
         </div>
 
@@ -36,6 +39,7 @@
 <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://cdn.bootcss.com/jsencrypt/3.0.0-beta.1/jsencrypt.js"></script>
+
 
 <script>
 
@@ -84,7 +88,7 @@
                 beforeSend: function(xhr) {
                     //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
                     // 利用请求头携带token数据
-                    xhr.setRequestHeader('Authorization',"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGFpbXMiOnsidWlkIjoiRU1UNHU3MWZuVTE0eUI1TiIsInVzZXJuYW1lIjoiYWRtaW4ifSwiZXhwIjoxNjk5NDE4OTI5fQ.1jYyEff7l1waR1ap8oCkhPkeqRrDbMhOmL7FVkWhrGM")
+                    xhr.setRequestHeader('Authorization',localStorage.getItem('Authorization'))
                 },
                 success:function (data) {
                     with(data){
@@ -112,7 +116,7 @@
                 beforeSend: function(xhr) {
                     //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
                     // 利用请求头携带token数据
-                    xhr.setRequestHeader('Authorization',"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGFpbXMiOnsidWlkIjoiRU1UNHU3MWZuVTE0eUI1TiIsInVzZXJuYW1lIjoiYWRtaW4ifSwiZXhwIjoxNjk5NDE4OTI5fQ.1jYyEff7l1waR1ap8oCkhPkeqRrDbMhOmL7FVkWhrGM")
+                    xhr.setRequestHeader('Authorization',localStorage.getItem('Authorization'))
                 },
                 success:function (data) {
                     with(data){
@@ -150,10 +154,9 @@
         })
 
 
-
-
-
-
+        /**
+         * 模拟生成数字信封加密在本地传输
+         */
         var encodedKey
         var encodedText
         var btn5 = $("#flush5");
@@ -166,7 +169,7 @@
                 beforeSend: function(xhr) {
                     //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
                     // 利用请求头携带token数据
-                    xhr.setRequestHeader('Authorization',"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGFpbXMiOnsidWlkIjoiRU1UNHU3MWZuVTE0eUI1TiIsInVzZXJuYW1lIjoiYWRtaW4ifSwiZXhwIjoxNjk5NDE4OTI5fQ.1jYyEff7l1waR1ap8oCkhPkeqRrDbMhOmL7FVkWhrGM")
+                    xhr.setRequestHeader('Authorization',localStorage.getItem('Authorization'))
                 },
                 success:function (data) {
                     with(data){
@@ -193,6 +196,12 @@
             encodedKey = encrypt.encrypt($("#password").val());
             alert('加密后密钥:'+encodedKey+"加密后明文："+encodedText);
         })
+
+
+        /**
+         * 读取本地存储私钥并解密
+         * @type {*|jQuery|HTMLElement}
+         */
         var btn6 = $("#flush6");
         btn6.click(function () {
             var private_Key
@@ -222,6 +231,122 @@
 
 
 
+
+
+
+
+
+
+        /**
+         * 双端数字证书加密传输测试
+         * @type {*|jQuery|HTMLElement}
+         */
+        var btn7 = $("#flush7");
+        btn7.click(function () {
+            var global_public_Key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjKIf8LVnuVXWRa3Aq8OgEQVu2y6jIW8qoN+2w4z/S4beWcZrLiymSzfrp/yAdmeyB512nRV6LHAnZlTyikRTbaOC29+r1cwt8vvdoG82bCvGQQ+vqJo/r3kDvryYtVrK5cxaKEHKOVKPzl0ZWU/U2k+CxxzfDME3Byj/ZPyT0xZEh7ztCziQ30r1LTjywI+wzCw+XK140sBYHcOO50Fzk2ezyumxncpbf7GG474RKN9LqyzTjTrIYW5w0t0EpfMzrDVUnYZZAzxdGVW0rGUm6KiCwu11aPS1L5gWsAQVvXhVzLxfkMZsX5Supt55xL9nZ8JWJP3R+71pBpojNcEgiwIDAQAB"
+
+            const message = CryptoJS.enc.Utf8.parse($("#username").val())
+            const secretPassphrase1 = CryptoJS.enc.Utf8.parse($("#password").val())
+            const iv1 = CryptoJS.enc.Utf8.parse("qscsidjjge385yl,")
+
+            encodedText = CryptoJS.AES.encrypt(message, secretPassphrase1, {
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7,
+                iv:iv1
+            }).toString()
+
+            //使用公钥加密
+            var encrypt = new JSEncrypt();
+            //encrypt.setPrivateKey('-----BEGIN RSA PRIVATE KEY-----'+PRIVATE_KEY+'-----END RSA PRIVATE KEY-----');
+            encrypt.setPublicKey('-----BEGIN PUBLIC KEY-----' + global_public_Key + '-----END PUBLIC KEY-----');
+            encodedKey = encrypt.encrypt($("#password").val());
+            alert('加密后密钥:'+encodedKey+"\n加密后明文："+encodedText);
+            var de = {
+
+                    "receiverUid" : "It is useless actually on this occusion ",
+                    "cipherText" : encodedText,
+                    "cipherTemporaryKey" : encodedKey
+
+            }
+
+            $.ajax({
+                url: '/cipher/global_decode',
+                type:'get',
+                async: false,
+                beforeSend: function(xhr) {
+                    //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
+                    // 利用请求头携带token数据
+                    xhr.setRequestHeader('Authorization',localStorage.getItem("Authorization"))
+                },
+                data:de,
+                dataType: "json",
+                success:function (data) {
+                    if(data.data!=null){
+                        alert(data.data);
+                    }else{
+                        alert("出错了!!!")
+                    }
+
+                }
+            })
+
+        })
+
+
+        /**
+         * 双端数字证书解密密接收测试
+         * @type {*|jQuery|HTMLElement}
+         */
+        var btn8 = $("#flush8");
+        btn8.click(function () {
+            var encodedT
+            var encodedK
+            $.ajax({
+                url: '/cipher/encode',
+                type:'get',
+                async: false,
+                beforeSend: function(xhr) {
+                    //xhr是原生ajax中网络请求对象，jQuery中已经封装好的
+                    // 利用请求头携带token数据
+                    xhr.setRequestHeader('Authorization',localStorage.getItem('Authorization'))
+                },
+                success:function (data) {
+                    with(data){
+                        with(data){
+                            encodedT= cipherText
+                            encodedK=cipherTemporaryKey
+                            //console.log(encodedT,encodedK)
+
+                        }
+
+                    }
+
+                }
+            })
+            var private_Key
+            private_Key = localStorage.getItem("privateKey");
+            //使用私钥解密
+            var decrypt = new JSEncrypt();
+            //decrypt.setPublicKey('-----BEGIN PUBLIC KEY-----' + PUBLIC_KEY + '-----END PUBLIC KEY-----');
+            decrypt.setPrivateKey('-----BEGIN RSA PRIVATE KEY-----'+private_Key+'-----END RSA PRIVATE KEY-----');
+            var decodeKey = decrypt.decrypt(encodedK);
+            console.log(decodeKey)
+            console.log(encodedT)
+
+            const secretPassphrase2 = CryptoJS.enc.Utf8.parse(decodeKey)
+            const iv2 = CryptoJS.enc.Utf8.parse("qscsidjjge385yl,")
+            const decodedText = CryptoJS.AES.decrypt(
+                encodedT,
+                secretPassphrase2,
+                {
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7,
+                    iv: iv2
+                }).toString(CryptoJS.enc.Utf8)
+
+            console.log(decodedText)
+            alert("解密后密钥:"+decodeKey+'解密后明文:'+decodedText);
+        })
 
     })
 

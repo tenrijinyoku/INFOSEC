@@ -1,8 +1,13 @@
 package com.ghostflower.CA_System.utils;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
+import java.security.Security;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.Base64;
 import java.util.Random;
 
@@ -16,7 +21,7 @@ public class AesUtil {
      * @throws Exception
      */
     public static String Encrypt(String SSrc, String SKey) throws Exception {
-
+        Security.addProvider(new BouncyCastleProvider());
         // 判断Key是否为16位
         if (SKey.length() != 16) {
             System.out.print("Key长度不是16位");
@@ -24,8 +29,9 @@ public class AesUtil {
         }
         byte[] raw = SKey.getBytes("utf-8");
         SecretKeySpec SKeySpec = new SecretKeySpec(raw, "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");//"算法/模式/补码方式"
-        cipher.init(Cipher.ENCRYPT_MODE, SKeySpec);
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding","BC");
+        byte[] iv = "qscsidjjge385yl,".getBytes("utf-8");
+        cipher.init(Cipher.ENCRYPT_MODE, SKeySpec,new IvParameterSpec(iv));
         byte[] encrypted = cipher.doFinal(SSrc.getBytes("utf-8"));
 
         String en=Base64.getEncoder().encodeToString(encrypted);//此处使用BASE64做转码功能
@@ -40,6 +46,7 @@ public class AesUtil {
      * @throws Exception
      */
     public static String Decrypt(String SSrc, String SKey) throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
         try {
             // 判断Key是否正确
             if (SKey == null) {
@@ -53,8 +60,9 @@ public class AesUtil {
             }
             byte[] raw = SKey.getBytes("utf-8");
             SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding","BC");
+            byte[] iv = "qscsidjjge385yl,".getBytes("utf-8");//生成初始向量
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec,new IvParameterSpec(iv));
             byte[] encrypted1 = Base64.getDecoder().decode(SSrc);//先用base64解密
             try {
                 byte[] original = cipher.doFinal(encrypted1);
